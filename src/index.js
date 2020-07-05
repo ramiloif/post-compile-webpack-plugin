@@ -1,19 +1,21 @@
 module.exports = class PostCompile {
-  constructor(fn) {
-    this.fn = fn
-  }
+  constructor(fn) {	  constructor(fn, options = {onlyFirstTime: false}) {
+    this.fn = fn	    this.fn = fn
+    this.isFirstCompile = true
+    this.options = options
+  }	  }
 
-  apply(compiler) {
-    const handler = stats => {
-      if (typeof this.fn === 'function') {
-        this.fn(stats)
+
+  apply(compiler) {	  apply(compiler) {
+    const handler = stats => {	    
+      const handler = stats => {
+      if (this.options.onlyFirstTime && !this.isFirstCompile) {
+        return
       }
-    }
-
-    if (compiler.hooks) {
-      compiler.hooks.done.tap('post-compile-webpack-plugin', handler)
-    } else {
-      compiler.plugin('done', handler)
-    }
+      if (typeof this.fn === 'function') {	      if (typeof this.fn === 'function') {
+        this.fn(stats)	        this.fn(stats)
+        this.isFirstCompile = false
+      }	      }
+    }	    
+    
   }
-}
